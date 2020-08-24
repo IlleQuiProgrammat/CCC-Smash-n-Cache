@@ -37,9 +37,9 @@ Challenge source code can be found here: https://github.com/IlleQuiProgrammat/CC
 ## Timing Attack Intro
 
 A timing attack is where an attacker is able to glean extra information about a
-a program's secrets, inputs or variables leading to exploitation. They are so deadly
+program's secrets, inputs or variables leading to exploitation. They are so deadly
 because you might have an otherwise secure algorithm (e.g. AES) but the way in which
-it has been implemented can cause sesnitive data to be leaked. Other examples include
+it has been implemented can cause sensitive data to be leaked. Other examples include
 SQLite timing attacks which are performed by `sqlmap` automatically.
 
 ### 1. What does it do?
@@ -52,7 +52,7 @@ interface:
 ### 2. Assembly deep dive
 
 Now we understand what the program is meant to do, we will take a look at the disassembly
-in order to see how we could bypass this intended behaviour.
+in order to see how we could bypass this intended behavior.
 
 I'm using Radare Cutter but any disassembler will work. As you can see, there is a call
 to `strcpy` which does not perform any bounds checks. Other interesting functions include:
@@ -73,7 +73,7 @@ have a look at this function.
 We can see that a buffer is allocated on the stack and two values are set above that buffer.
 `strcpy` writes to the buffer below these values, meaning that the values could be overwritten
 if the string we are copying from is larger than our buffer (we will check in the next step).
-Near the end of the function there is a suspicious call to `check_canary` (not the normal
+Near the end of the function, there is a suspicious call to `check_canary` (not the normal
 canary checking function `__stack_chk_fail` - hence it is worth investigating). Finally, a local
 variable is checked if it is equal to zero (`test eax, eax`). If it is, the program exits.
 If it is not, then the program prints the flag then quits - our plan is to overwrite this value
@@ -134,7 +134,7 @@ only 2 seconds when it is less than. It does not sleep at all when the byte is e
 
 We cannot do a normal stack canary brute force as it would require us to be able to
 enter a string that is not a multiple of 4 long and also without any null bytes.
-This would also take too long - approximately `(256*4)*2 seconds` worst case (half that
+This would also take too long - approximately `(256*4)*2 seconds` worst-case (half that
 for average case). We can, however, exploit the fact that if it is below it takes a
 shorter length of time than if it is above. This allows us to binary search the bytes
 of the canary. Although this doesn't affect the complexity of our algorithm (`O(log n)`),
@@ -143,10 +143,10 @@ take on average `3.5*8*4` seconds.
 
 ## Proof of Concept
 
-For this I am using `pwntools` as it is a lot easier to switch between local and remote systems and
+For this, I am using `pwntools` as it is a lot easier to switch between local and remote systems and
 supplies many useful functions for writing exploits in general.
 
-It is also done in python 2 so that unicode doesn't edit the bytes.
+It is also done in python 2 so that Unicode doesn't edit the bytes.
 
 ```py
 from pwn import *
